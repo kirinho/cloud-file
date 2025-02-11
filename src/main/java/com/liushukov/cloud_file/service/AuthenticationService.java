@@ -6,5 +6,5 @@ import com.liushukov.cloud_file.entity.User;
 import java.util.Optional;
 
 public interface AuthenticationService {
-    Optional<User> authenticate(UserLoginDto loginDto);
+    User authenticate(UserLoginDto loginDto);
 }

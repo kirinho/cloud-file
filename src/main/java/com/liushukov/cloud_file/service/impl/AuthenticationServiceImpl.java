@@ -5,6 +5,7 @@ import com.liushukov.cloud_file.entity.User;
 import com.liushukov.cloud_file.repository.UserRepository;
 import com.liushukov.cloud_file.service.AuthenticationService;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +22,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public Optional<User> authenticate(UserLoginDto loginDto) {
+    public User authenticate(UserLoginDto loginDto) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password())
         );
-        return userRepository.findUserByEmail(loginDto.email());
+        return userRepository
+                .findUserByEmail(loginDto.email())
+                .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
     }
 }

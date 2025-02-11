@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "users")
@@ -40,36 +41,41 @@ public class User implements UserDetails {
         return fullName;
     }
 
-    public void setFullName(String fullName) {
+    public User setFullName(String fullName) {
         this.fullName = fullName;
+        return this;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public User setEmail(String email) {
         this.email = email;
+        return this;
     }
 
-    public void setPassword(String password) {
+    public User setPassword(String password) {
         this.password = password;
+        return this;
     }
 
     public Role getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public User setRole(Role role) {
         this.role = role;
+        return this;
     }
 
     public Boolean getEnabled() {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
+    public User setEnabled(Boolean enabled) {
         this.enabled = enabled;
+        return this;
     }
 
     public Long getId() {
@@ -131,5 +137,18 @@ public class User implements UserDetails {
                 ", password='" + password + '\'' +
                 ", role=" + role +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) && Objects.equals(createdAt, user.createdAt) && Objects.equals(updatedAt, user.updatedAt) && Objects.equals(fullName, user.fullName) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && role == user.role && Objects.equals(enabled, user.enabled);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, createdAt, updatedAt, fullName, email, password, role, enabled);
     }
 }

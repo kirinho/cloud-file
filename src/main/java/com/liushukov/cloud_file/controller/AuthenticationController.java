@@ -41,12 +41,8 @@ public class AuthenticationController {
 
     @PostMapping(path = "/login")
     public ResponseEntity<String> login(@Valid @RequestBody UserLoginDto loginDto) {
-        Optional<User> user = authenticationService.authenticate(loginDto);
-        if (user.isPresent()) {
-            String jwt = jwtService.generateToken(user.get());
-            return ResponseEntity.status(HttpStatus.OK).body(jwt);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        User user = authenticationService.authenticate(loginDto);
+        String jwt = jwtService.generateToken(user);
+        return ResponseEntity.status(HttpStatus.OK).body(jwt);
     }
 }
