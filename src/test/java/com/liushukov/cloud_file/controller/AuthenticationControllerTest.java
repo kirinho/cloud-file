@@ -64,14 +64,13 @@ public class AuthenticationControllerTest {
 
     @Test
     void givenUserDto_registration_shouldSaveUserAndReturnDto() throws Exception {
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post(URL_REGISTER)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(buildUserDto())))
                 .andExpect(status().isCreated())
                 .andDo(print())
                 .andExpect(jsonPath("$.fullName").value(USER_FULL_NAME))
                 .andExpect(jsonPath("$.email").value(USER_EMAIL));
-
 
         Assertions.assertEquals(1, userRepository.findAll().size());
         Assertions.assertTrue(userRepository.findUserByEmail(USER_EMAIL).isPresent());
@@ -82,8 +81,7 @@ public class AuthenticationControllerTest {
     void givenUserDto_registration_shouldNotSaveUserDueToConflict() throws Exception {
         User user = userMapper.toEntity(buildUserDto(), Role.USER, true, new BCryptPasswordEncoder());
         userRepository.save(user);
-
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post(URL_REGISTER)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(buildUserDto())))
                 .andExpect(status().isConflict())
@@ -96,11 +94,21 @@ public class AuthenticationControllerTest {
     void givenUserLoginDto_login_shouldAuthenticateUserAndReturnJwt() throws Exception {
         User user = userMapper.toEntity(buildUserDto(), Role.USER, true, new BCryptPasswordEncoder());
         userRepository.save(user);
-
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post(URL_LOGIN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(buildUserLoginDto())))
                 .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    void givenDisabledUser_login_shouldReturnForbidden() throws Exception {
+        User user = userMapper.toEntity(buildUserDto(), Role.USER, false, new BCryptPasswordEncoder());
+        userRepository.save(user);
+        mockMvc.perform(post(URL_LOGIN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(buildUserDto())))
+                .andExpect(status().isForbidden())
                 .andDo(print());
     }
 
@@ -108,6 +116,8 @@ public class AuthenticationControllerTest {
         static final String USER_FULL_NAME = "test_full_name";
         static final String USER_EMAIL = "test@gmail.com";
         static final String USER_PASSWORD = "test_password";
+        static final String URL_REGISTER = "/auth/register";
+        static final String URL_LOGIN = "/auth/login";
 
         static UserDto buildUserDto() {
             return new UserDto(
